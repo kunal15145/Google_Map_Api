@@ -40,7 +40,6 @@ public class MapMarker extends FragmentActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         Intent intent = getIntent();
         PlaceID = intent.getStringExtra(PlaceSearcher.PlaceID);
         Log.d("Message",PlaceID);
