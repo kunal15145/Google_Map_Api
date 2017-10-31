@@ -23,29 +23,19 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class PlaceSearcherAdapter
-        extends ArrayAdapter<AutocompletePrediction> implements Filterable {
+public class PlaceSearcherAdapter extends ArrayAdapter<AutocompletePrediction> implements Filterable {
 
     private static final String TAG = "Adapter Debugging";
     private ArrayList<AutocompletePrediction> mResultList;
     private GoogleApiClient googleApiClient;
     private LatLngBounds mBounds;
+    private boolean flag;
     private AutocompleteFilter mPlaceFilter;
     public PlaceSearcherAdapter(Context context, GoogleApiClient googleApiClient, LatLngBounds bounds, AutocompleteFilter filter) {
         super(context, android.R.layout.simple_expandable_list_item_2, android.R.id.text1);
         this.googleApiClient = googleApiClient;
         mBounds = bounds;
         mPlaceFilter = filter;
-    }
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View element = super.getView(position, convertView, parent);
-        AutocompletePrediction item = getItem(position);
-        TextView textView1 = (TextView)element.findViewById(android.R.id.text1);
-        textView1.setText(item.getPrimaryText(new StyleSpan(Typeface.BOLD)));
-        TextView textView = (TextView)element.findViewById(android.R.id.text2);
-        textView.setText(item.getSecondaryText(new StyleSpan(Typeface.BOLD_ITALIC)));
-        return element;
     }
 
     @Override
@@ -55,15 +45,10 @@ public class PlaceSearcherAdapter
             protected FilterResults performFiltering(CharSequence datafilter) {
                 FilterResults filterResults = new FilterResults();
                 ArrayList<AutocompletePrediction> filterData = new ArrayList<>();
-                if (datafilter != null) {
-                    filterData = getAutocomplete(datafilter);
-                }
+                if (datafilter != null) filterData = getAutocomplete(datafilter);
                 filterResults.values = filterData;
-                if (filterData != null) {
-                    filterResults.count = filterData.size();
-                } else {
-                    filterResults.count = 0;
-                }
+                if (filterData != null) filterResults.count = filterData.size();
+                else filterResults.count = 0;
                 return filterResults;
             }
             @Override
@@ -71,17 +56,12 @@ public class PlaceSearcherAdapter
                 if (filterResults != null && filterResults.count > 0) {
                     mResultList = (ArrayList<AutocompletePrediction>)filterResults.values;
                     notifyDataSetChanged();
-                } else {
-                    notifyDataSetInvalidated();
-                }
+                } else notifyDataSetInvalidated();
             }
             @Override
             public CharSequence convertResultToString(Object resultValue) {
-                if (resultValue instanceof AutocompletePrediction) {
-                    return ((AutocompletePrediction)resultValue).getFullText(null);
-                } else {
-                    return super.convertResultToString(resultValue);
-                }
+                if (resultValue instanceof AutocompletePrediction) return ((AutocompletePrediction)resultValue).getFullText(null);
+                else return super.convertResultToString(resultValue);
             }
         };
     }
@@ -93,8 +73,7 @@ public class PlaceSearcherAdapter
             AutocompletePredictionBuffer autocompletePredictions = results.await(60,TimeUnit.SECONDS);
             final Status status = autocompletePredictions.getStatus();
             if (!status.isSuccess()) {
-                Toast.makeText(getContext(), "Error contacting API: " + status.toString(),
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error contacting API: " + status.toString(), Toast.LENGTH_SHORT).show();
                 autocompletePredictions.release();
                 return null;
             }
@@ -105,13 +84,24 @@ public class PlaceSearcherAdapter
     }
 
     @Override
-    public int getCount() {
-        return mResultList.size();
-    }
+    public int getCount() {return mResultList.size();}
 
     @Override
-    public AutocompletePrediction getItem(int position) {
-        return mResultList.get(position);
+    public AutocompletePrediction getItem(int position) {return mResultList.get(position);}
+        
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View element = super.getView(position, convertView, parent);
+        AutocompletePrediction item = getItem(position);
+        TextView textView1 = (TextView)element.findViewById(android.R.id.text1);
+        textView1.setText(item.getPrimaryText(new StyleSpan(Typeface.BOLD)));
+        TextView textView = (TextView)element.findViewById(android.R.id.text2);
+        textView.setText(item.getSecondaryText(new StyleSpan(Typeface.BOLD_ITALIC)));
+        return element;
     }
-
+        
+    public int check() {
+         if(flag) return 1;
+         else return 2;
+    }        
 }
